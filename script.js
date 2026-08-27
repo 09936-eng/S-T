@@ -11,7 +11,6 @@ let gameState = {
     achievements: []
 };
 
-// Load saved data
 function loadGame() {
     const saved = localStorage.getItem('QUANTUM_SHIFT_SAVE');
     if (saved) {
@@ -24,7 +23,7 @@ function saveGame() {
     localStorage.setItem('QUANTUM_SHIFT_SAVE', JSON.stringify(gameState));
 }
 
-// 2. AUDIO SYSTEM (Synthesizer - Works without external MP3s)
+// 2. AUDIO SYSTEM (Web Audio API Synthesizer)
 const AudioContext = window.AudioContext || window.webkitAudioContext;
 let audioCtx = null;
 
@@ -82,7 +81,6 @@ function updateHUD() {
     document.getElementById('hud-score').innerText = gameState.score;
     document.getElementById('hud-energy').innerText = gameState.energy;
 
-    // Update Map Statuses
     for (let i = 1; i <= 5; i++) {
         const node = document.querySelector(`.map-node[data-world="${i}"]`);
         if (node) {
@@ -173,16 +171,18 @@ document.getElementById('btn-thrust-lock').addEventListener('click', () => {
     }
 });
 
-// --- WORLD 2: HEAT COLLAPSE (Drag & Drop) ---
+// --- WORLD 2: HEAT COLLAPSE (Universal Mouse + Touch Drag & Drop) ---
 let w2Temp = 45;
 let w2Energy = 100;
+let selectedW2Tool = null;
 
 function startWorld2() {
     showScreen('screen-world-2');
     w2Temp = 45;
     w2Energy = 100;
+    selectedW2Tool = null;
     updateW2UI();
-    triggerNova("N.O.V.A.: ลากอุปกรณ์ปรับอุณหภูมิเมืองให้อยู่ระหว่าง 20°C - 25°C ก่อนพลังงานหมด!");
+    triggerNova("N.O.V.A.: คลิกเลือกหรือลากอุปกรณ์ปรับอุณหภูมิลงในช่องว่าง ให้อุณหภูมิอยู่ระหว่าง 20°C - 25°C!");
 }
 
 function updateW2UI() {
@@ -190,18 +190,7 @@ function updateW2UI() {
     document.getElementById('w2-energy').innerText = w2Energy;
 }
 
-document.querySelectorAll('.tool-card').forEach(card => {
-    card.addEventListener('dragstart', (e) => {
-        e.dataTransfer.setData('type', e.target.getAttribute('data-type'));
-    });
-});
-
-const dropzoneW2 = document.getElementById('w2-dropzone');
-dropzoneW2.addEventListener('dragover', (e) => e.preventDefault());
-dropzoneW2.addEventListener('drop', (e) => {
-    e.preventDefault();
-    const type = e.dataTransfer.getData('type');
-    
+function applyW2Tool(type) {
     if (w2Energy <= 0) {
         triggerNova("พลังงานหมดแล้ว!");
         return;
@@ -222,14 +211,58 @@ dropzoneW2.addEventListener('drop', (e) => {
         triggerNova("สมบูรณ์แบบ! ปรับอุณหภูมิเมืองอนาคตสำเร็จแล้ว!");
         setTimeout(() => showScreen('screen-map'), 2000);
     }
+}
+
+// Drag & Drop + Click to select support for W2
+document.querySelectorAll('.tool-card').forEach(card => {
+    // Mouse Drag
+    card.addEventListener('dragstart', (e) => {
+        e.dataTransfer.setData('type', e.target.getAttribute('data-type'));
+    });
+
+    // Touch / Click Support
+    card.addEventListener('click', () => {
+        document.querySelectorAll('.tool-card').forEach(c => c.classList.remove('selected-item'));
+        card.classList.add('selected-item');
+        selectedW2Tool = card.getAttribute('data-type');
+        playSound('click');
+    });
+});
+
+const dropzoneW2 = document.getElementById('w2-dropzone');
+dropzoneW2.addEventListener('dragover', (e) => e.preventDefault());
+dropzoneW2.addEventListener('drop', (e) => {
+    e.preventDefault();
+    const type = e.dataTransfer.getData('type');
+    applyW2Tool(type);
+});
+dropzoneW2.addEventListener('click', () => {
+    if (selectedW2Tool) {
+        applyW2Tool(selectedW2Tool);
+        selectedW2Tool = null;
+        document.querySelectorAll('.tool-card').forEach(c => c.classList.remove('selected-item'));
+    }
 });
 
 // --- WORLD 3: ROBOT VIRUS ---
 let programStack = [];
+let selectedW3Cmd = null;
+
+function addCommandToW3(cmd) {
+    programStack.push(cmd);
+    const progArea = document.getElementById('program-area');
+    progArea.innerText = programStack.join(" ➔ ");
+    playSound('click');
+}
 
 document.querySelectorAll('.cmd-block').forEach(cmd => {
     cmd.addEventListener('dragstart', (e) => {
         e.dataTransfer.setData('cmd', e.target.getAttribute('data-cmd'));
+    });
+
+    cmd.addEventListener('click', () => {
+        const command = cmd.getAttribute('data-cmd');
+        addCommandToW3(command);
     });
 });
 
@@ -238,8 +271,7 @@ progArea.addEventListener('dragover', (e) => e.preventDefault());
 progArea.addEventListener('drop', (e) => {
     e.preventDefault();
     const cmd = e.dataTransfer.getData('cmd');
-    programStack.push(cmd);
-    progArea.innerText = programStack.join(" ➔ ");
+    addCommandToW3(cmd);
 });
 
 document.getElementById('btn-w3-run').addEventListener('click', () => {
@@ -252,13 +284,13 @@ document.getElementById('btn-w3-run').addEventListener('click', () => {
         setTimeout(() => showScreen('screen-map'), 2000);
     } else {
         playSound('error');
-        triggerNova("เส้นทางผิดพลาด! ลองเรียงคำสั่งใหม่");
+        triggerNova("เส้นทางผิดพลาด! ลองเรียงคำสั่งใหม่ (ทิป: เดินหน้า -> เดินหน้า -> เลี้ยวขวา)");
     }
 });
 
 document.getElementById('btn-w3-reset').addEventListener('click', () => {
     programStack = [];
-    progArea.innerText = "วางชุดคำสั่งที่นี่...";
+    progArea.innerText = "วางชุดคำสั่งที่นี่... (ลากมาวาง หรือแตะเพื่อเลือก)";
 });
 
 // --- WORLD 4: LOST ELEMENTS ---
@@ -327,18 +359,15 @@ window.addEventListener('load', () => {
     renderBackground();
     loadGame();
 
-    // Home Buttons
     document.getElementById('btn-start').addEventListener('click', () => showScreen('screen-map'));
     document.getElementById('btn-profile').addEventListener('click', () => showScreen('screen-profile'));
     document.getElementById('btn-achievements').addEventListener('click', () => showScreen('screen-achievements'));
     document.getElementById('btn-how-to').addEventListener('click', () => showScreen('screen-howto'));
 
-    // Navigation Back Buttons
     document.querySelectorAll('.btn-back').forEach(btn => {
         btn.addEventListener('click', () => showScreen('screen-map'));
     });
 
-    // Map Node Clicking
     document.querySelectorAll('.map-node').forEach(node => {
         node.addEventListener('click', () => {
             const world = parseInt(node.getAttribute('data-world'));
@@ -355,7 +384,6 @@ window.addEventListener('load', () => {
         });
     });
 
-    // Profile Save
     document.getElementById('btn-save-profile').addEventListener('click', () => {
         gameState.playerName = document.getElementById('player-name-input').value || "Dr. Quantum";
         saveGame();
@@ -363,13 +391,11 @@ window.addEventListener('load', () => {
         showScreen('screen-home');
     });
 
-    // Sound Toggle
     document.getElementById('btn-sound-toggle').addEventListener('click', () => {
         gameState.soundEnabled = !gameState.soundEnabled;
         document.getElementById('btn-sound-toggle').innerText = gameState.soundEnabled ? "🔊" : "🔇";
     });
 
-    // Close NOVA Modal
     document.getElementById('nova-close-btn').addEventListener('click', () => {
         document.getElementById('nova-modal').classList.add('hidden');
     });
