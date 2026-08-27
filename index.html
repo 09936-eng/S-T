@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QUANTUM SHIFT: The Science Beyond Reality</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0b001a">
+</head>
+<body>
+    <!-- Canvas พื้นหลังดวงดาว -->
+    <canvas id="space-bg"></canvas>
+
+    <!-- HUD ด้านบน -->
+    <header id="hud" class="hidden">
+        <div class="hud-item">นักวิทยาศาสตร์: <span id="hud-player-name">Player</span></div>
+        <div class="hud-item">คะแนน: <span id="hud-score">0</span> SP</div>
+        <div class="hud-item">พลังงาน: <span id="hud-energy">100</span>%</div>
+        <button id="btn-sound-toggle" class="btn-icon">🔊</button>
+    </header>
+
+    <!-- N.O.V.A. AI Assistant Modal -->
+    <div id="nova-modal" class="nova-container hidden">
+        <div class="nova-avatar">🤖 N.O.V.A.</div>
+        <div class="nova-content">
+            <p id="nova-text">ยินดีต้อนรับสู่โปรเจกต์ QUANTUM SHIFT!</p>
+            <button id="nova-close-btn" class="btn-neon-small">รับทราบ</button>
+        </div>
+    </div>
+
+    <!-- 1. HOME SCREEN -->
+    <section id="screen-home" class="screen active">
+        <div class="title-container">
+            <h1 class="glitch-title">QUANTUM SHIFT</h1>
+            <h2 class="sub-title">THE SCIENCE BEYOND REALITY</h2>
+        </div>
+        <div class="menu-box">
+            <button id="btn-start" class="btn-neon">เริ่มภารกิจ</button>
+            <button id="btn-profile" class="btn-neon">โปรไฟล์นักวิทยาศาสตร์</button>
+            <button id="btn-achievements" class="btn-neon">ความสำเร็จ</button>
+            <button id="btn-how-to" class="btn-neon">วิธีเล่น</button>
+            <button id="btn-settings" class="btn-neon">ตั้งค่า</button>
+        </div>
+    </section>
+
+    <!-- 2. PROFILE & CHARACTER CREATION SCREEN -->
+    <section id="screen-profile" class="screen hidden">
+        <h2>โปรไฟล์นักวิทยาศาสตร์</h2>
+        <div class="profile-card">
+            <div class="form-group">
+                <label for="player-name-input">ชื่อนักวิทยาศาสตร์:</label>
+                <input type="text" id="player-name-input" value="Dr. Quantum" maxlength="15">
+            </div>
+            <div class="avatar-select">
+                <h3>เลือกตัวละครคู่หู</h3>
+                <div class="avatar-options">
+                    <img id="custom-avatar" src="ghost-avatar.png" alt="Ghost Avatar" class="avatar-img selected">
+                </div>
+            </div>
+            <div class="color-select">
+                <h3>เลือกโทนสีออร่า</h3>
+                <input type="color" id="aura-color" value="#00f3ff">
+            </div>
+            <button id="btn-save-profile" class="btn-neon">บันทึกและลุย!</button>
+        </div>
+    </section>
+
+    <!-- 3. QUANTUM MAP SCREEN -->
+    <section id="screen-map" class="screen hidden">
+        <h2>QUANTUM MAP</h2>
+        <div class="map-grid">
+            <div class="map-node unlocked" data-world="1">
+                <div class="node-icon">🌌</div>
+                <h3>1. ZERO GRAVITY</h3>
+                <span class="status">UNLOCKED</span>
+                <div class="stars" id="stars-w1">⭐⭐⭐</div>
+            </div>
+            <div class="map-node locked" data-world="2">
+                <div class="node-icon">🔥</div>
+                <h3>2. HEAT COLLAPSE</h3>
+                <span class="status">LOCKED</span>
+                <div class="stars" id="stars-w2">☆☆☆</div>
+            </div>
+            <div class="map-node locked" data-world="3">
+                <div class="node-icon">🤖</div>
+                <h3>3. ROBOT VIRUS</h3>
+                <span class="status">LOCKED</span>
+                <div class="stars" id="stars-w3">☆☆☆</div>
+            </div>
+            <div class="map-node locked" data-world="4">
+                <div class="node-icon">🧪</div>
+                <h3>4. LOST ELEMENTS</h3>
+                <span class="status">LOCKED</span>
+                <div class="stars" id="stars-w4">☆☆☆</div>
+            </div>
+            <div class="map-node locked" data-world="5">
+                <div class="node-icon">🌱</div>
+                <h3>5. LAST GREEN PLANET</h3>
+                <span class="status">LOCKED</span>
+                <div class="stars" id="stars-w5">☆☆☆</div>
+            </div>
+        </div>
+        <button class="btn-neon btn-back">กลับหน้าหลัก</button>
+    </section>
+
+    <!-- WORLD 1: ZERO GRAVITY -->
+    <section id="screen-world-1" class="screen hidden">
+        <h2>WORLD 1: ZERO GRAVITY</h2>
+        <p>ควบคุมระดับแรงดัน THRUST CONTROL เพื่อช่วย PIX-01 ที่กำลังลอยเคว้ง!</p>
+        <div class="w1-stage">
+            <img src="ghost-avatar.png" class="pix-bot idle" id="pix-bot-w1" alt="PIX-01">
+            <div id="thrust-meter">
+                <div id="thrust-target-zone"></div>
+                <div id="thrust-indicator"></div>
+            </div>
+            <button id="btn-thrust-lock" class="btn-neon">LOCK THRUST!</button>
+        </div>
+        <button class="btn-neon btn-back">ยอมแพ้ / กลับแผนที่</button>
+    </section>
+
+    <!-- WORLD 2: HEAT COLLAPSE -->
+    <section id="screen-world-2" class="screen hidden">
+        <h2>WORLD 2: HEAT COLLAPSE</h2>
+        <p>ลากอุปกรณ์เพื่อปรับอุณหภูมิเมืองอนาคตให้อยู่ในช่วง 20°C - 25°C</p>
+        <div class="w2-dashboard">
+            <div class="stat-display">อุณหภูมิปัจจุบัน: <span id="w2-temp">45</span>°C</div>
+            <div class="stat-display">พลังงานเหลือ: <span id="w2-energy">100</span> HP</div>
+        </div>
+        <div class="w2-tools">
+            <div class="tool-card" draggable="true" data-type="cooler">❄️ Cooler (-10°C / ใช้ 20 พลังงาน)</div>
+            <div class="tool-card" draggable="true" data-type="heater">🔥 Heater (+10°C / ใช้ 20 พลังงาน)</div>
+            <div class="tool-card" draggable="true" data-type="fan">🌀 Fan (-5°C / ใช้ 10 พลังงาน)</div>
+        </div>
+        <div id="w2-dropzone" class="dropzone">ลากอุปกรณ์มาวางที่นี่เพื่อใช้งาน</div>
+        <button class="btn-neon btn-back">กลับแผนที่</button>
+    </section>
+
+    <!-- WORLD 3: ROBOT VIRUS -->
+    <section id="screen-world-3" class="screen hidden">
+        <h2>WORLD 3: ROBOT VIRUS</h2>
+        <p>ลากบล็อกคำสั่งพาผีน้อย PIX-01 เดินไปหาประตูมิติ!</p>
+        <div class="w3-container">
+            <div class="command-palette">
+                <div class="cmd-block" draggable="true" data-cmd="FORWARD">➡️ เดินหน้า</div>
+                <div class="cmd-block" draggable="true" data-cmd="RIGHT">↪️ เลี้ยวขวา</div>
+                <div class="cmd-block" draggable="true" data-cmd="LEFT">↩️ เลี้ยวซ้าย</div>
+            </div>
+            <div id="program-area" class="dropzone">วางชุดคำสั่งที่นี่...</div>
+        </div>
+        <div class="w3-controls">
+            <button id="btn-w3-run" class="btn-neon">RUN PROGRAM</button>
+            <button id="btn-w3-reset" class="btn-neon">RESET</button>
+        </div>
+        <button class="btn-neon btn-back">กลับแผนที่</button>
+    </section>
+
+    <!-- WORLD 4: LOST ELEMENTS -->
+    <section id="screen-world-4" class="screen hidden">
+        <h2>WORLD 4: LOST ELEMENTS</h2>
+        <p>เลือกธาตุที่มีการนำไฟฟ้าและความแข็งแรงเหมาะสมสำหรับซ่อมสายไฟในห้องทดลอง</p>
+        <div class="elements-grid">
+            <div class="elem-card" data-elem="H"><h1>H</h1><p>ไฮโดรเจน</p></div>
+            <div class="elem-card" data-elem="O"><h1>O</h1><p>ออกซิเจน</p></div>
+            <div class="elem-card" data-elem="Cu"><h1>Cu</h1><p>ทองแดง</p></div>
+            <div class="elem-card" data-elem="Si"><h1>Si</h1><p>ซิลิคอน</p></div>
+        </div>
+        <div id="elem-details" class="details-box">คลิกที่ธาตุเพื่อสแกนข้อมูลคุณสมบัติ</div>
+        <button id="btn-w4-use" class="btn-neon hidden">ใช้วัสดุนี้ซ่อมแซม</button>
+        <button class="btn-neon btn-back">กลับแผนที่</button>
+    </section>
+
+    <!-- WORLD 5: LAST GREEN PLANET -->
+    <section id="screen-world-5" class="screen hidden">
+        <h2>WORLD 5: LAST GREEN PLANET</h2>
+        <p>ปรับสมดุลระบบนิเวศจำลองให้อยู่ในช่วง 40 - 60 ทุกค่าเพื่อฟื้นฟูโดมชีวภาพ</p>
+        <div class="bio-stats">
+            <div>Oxygen: <span id="bio-ox">20</span></div>
+            <div>Water: <span id="bio-wat">20</span></div>
+            <div>Temp: <span id="bio-tmp">80</span></div>
+            <div>Plant Health: <span id="bio-hp">30</span>%</div>
+        </div>
+        <div class="bio-controls">
+            <button class="btn-neon-small" onclick="adjustBio('ox', 10)">+ เพิ่มแสง/ออกซิเจน</button>
+            <button class="btn-neon-small" onclick="adjustBio('wat', 10)">+ เติมน้ำ</button>
+            <button class="btn-neon-small" onclick="adjustBio('tmp', -10)">- ลดอุณหภูมิ</button>
+        </div>
+        <div id="biodome-display" class="biodome">
+            <img src="ghost-avatar.png" id="bio-plant" class="bio-avatar" alt="Bio Ghost">
+        </div>
+        <button class="btn-neon btn-back">กลับแผนที่</button>
+    </section>
+
+    <!-- ACHIEVEMENTS MODAL -->
+    <section id="screen-achievements" class="screen hidden">
+        <h2>ความสำเร็จ (ACHIEVEMENTS)</h2>
+        <div class="achieve-list">
+            <div class="achieve-card" id="ach-1">🏆 FIRST DISCOVERY - ปลดล็อกโลกใบแรก</div>
+            <div class="achieve-card" id="ach-2">⚡ ENERGY SAVER - ผ่านด่านโดยใช้พลังงานอย่างประหยัด</div>
+            <div class="achieve-card" id="ach-3">🧠 SCIENCE MASTER - เคลียร์หมดทุกโลกสำเร็จ</div>
+        </div>
+        <button class="btn-neon btn-back">กลับ</button>
+    </section>
+
+    <!-- HOW TO PLAY MODAL -->
+    <section id="screen-howto" class="screen hidden">
+        <h2>วิธีเล่น</h2>
+        <div class="info-text">
+            <p>1. สำรวจโลกต่างๆ ผ่าน QUANTUM MAP</p>
+            <p>2. ใช้ทักษะการทดลอง วิเคราะห์ การลากวางคำสั่ง และแก้ปัญหาทางวิทยาศาสตร์</p>
+            <p>3. สะสมคะแนน Science Points และคว้า 3 ดาวในทุกภารกิจ!</p>
+        </div>
+        <button class="btn-neon btn-back">เข้าใจแล้ว</button>
+    </section>
+
+    <script src="script.js"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js')
+                .then(() => console.log('Service Worker Registered'));
+        }
+    </script>
+</body>
+</html>
