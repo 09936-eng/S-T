@@ -1,0 +1,16 @@
+{
+  "name": "QUANTUM SHIFT: The Science Beyond Reality",
+  "short_name": "QUANTUM SHIFT",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0b001a",
+  "theme_color": "#0b001a",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "ghost-avatar.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
